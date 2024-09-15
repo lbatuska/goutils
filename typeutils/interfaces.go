@@ -15,6 +15,7 @@ type Unwrappable[T any] interface {
 
 // Both an Optional and Result is an Option
 type Option[T any] interface {
+	ValueContainer
 	Unwrappable[T]
 }
 
@@ -23,6 +24,7 @@ type OptionalI[T any] interface {
 	Is_none() bool
 	Ok_or(error) Result[T]
 	Ok_or_else(func() error) Result[T]
+	Unwrappable[T]
 }
 
 type ResultI[T any] interface {
@@ -30,6 +32,7 @@ type ResultI[T any] interface {
 	Is_err() bool
 	Ok() Optional[T]
 	Err() Optional[error]
+	Unwrappable[T]
 }
 
 // Ensure compile time the interfaces are implemented
