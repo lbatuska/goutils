@@ -32,7 +32,7 @@ func (res Result[T]) Unwrap() T {
 	if res.err == nil {
 		return res.value
 	}
-	panic("Tried unwrapping a Result that had an error a value!")
+	panic("Tried unwrapping a Result that had an error value!")
 }
 
 func (res Result[T]) Unwrap_or(val T) T {
