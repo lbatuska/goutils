@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (lgr *FileLoggerimpl) init() {
+func (lgr *FileLoggerImpl) init() {
 	lgr.filepath = "./log"
 	lgr.messages = make(chan string, logbuffersize)
 	envfp, envexist := os.LookupEnv("LOGFILE_GO_LOGGER")
@@ -15,10 +15,10 @@ func (lgr *FileLoggerimpl) init() {
 		if len(envfp) > 0 {
 			lgr.filepath = envfp
 		} else {
-			Logger().Write_DEBUG(fmt.Sprintf("LOGFILE_GO_LOGGER env exist but has an empty value using default value: %s !\n", lgr.filepath))
+			LoggerInstance().WriteDebug(fmt.Sprintf("LOGFILE_GO_LOGGER env exist but has an empty value using default value: %s !\n", lgr.filepath))
 		}
 	} else {
-		Logger().Write_DEBUG(fmt.Sprintf("LOGFILE_GO_LOGGER env doesn't exist using default value: %s !\n", lgr.filepath))
+		LoggerInstance().WriteDebug(fmt.Sprintf("LOGFILE_GO_LOGGER env doesn't exist using default value: %s !\n", lgr.filepath))
 	}
 	f, err := os.OpenFile(lgr.filepath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 	if err != nil {
@@ -29,7 +29,7 @@ func (lgr *FileLoggerimpl) init() {
 	lgr.mutex = &sync.Mutex{}
 }
 
-func (logger *FileLoggerimpl) StartLogger() {
+func (logger *FileLoggerImpl) StartLogger() {
 	fmt.Println("Starting FileLogger")
 	loggerlogonce.Do(func() {
 		for msg := range logger.messages {
@@ -58,15 +58,15 @@ func (logger *FileLoggerimpl) StartLogger() {
 	// logger.mutex.Unlock()
 }
 
-func (logger *FileLoggerimpl) Write(message string) {
+func (logger *FileLoggerImpl) Write(message string) {
 	logger.messages <- time.Now().Format(time.UnixDate) + " : " + message + "\n"
 }
 
-func (logger *FileLoggerimpl) Write_Request(message string, request string) {
+func (logger *FileLoggerImpl) WriteRequest(message string, request string) {
 	logger.Write(request + " : " + message)
 }
 
-func (logger *FileLoggerimpl) WriteErr(err error) (errnum int) {
+func (logger *FileLoggerImpl) WriteErr(err error) (errnum int) {
 	if err != nil {
 		logger.Write("Error: " + err.Error())
 		errnum = 1
@@ -74,7 +74,7 @@ func (logger *FileLoggerimpl) WriteErr(err error) (errnum int) {
 	return errnum
 }
 
-func (logger *FileLoggerimpl) WriteErr_Request(err error, uuid string) (errnum int) {
+func (logger *FileLoggerImpl) WriteErrRequest(err error, uuid string) (errnum int) {
 	if err != nil {
 		logger.Write(uuid + " : Error: " + err.Error())
 		errnum = 1
@@ -82,29 +82,29 @@ func (logger *FileLoggerimpl) WriteErr_Request(err error, uuid string) (errnum i
 	return errnum
 }
 
-func (logger *FileLoggerimpl) Write_DEBUG(message string) {
+func (logger *FileLoggerImpl) WriteDebug(message string) {
 	if DEBUG {
 		logger.Write(message)
 	}
 }
 
-func (logger *FileLoggerimpl) Write_Request_DEBUG(message string, uuid string) {
+func (logger *FileLoggerImpl) WriteRequestDebug(message string, uuid string) {
 	if DEBUG {
-		logger.Write_Request(message, uuid)
+		logger.WriteRequest(message, uuid)
 	}
 }
 
-func (logger *FileLoggerimpl) WriteErr_DEBUG(err error) (errnum int) {
+func (logger *FileLoggerImpl) WriteErrDebug(err error) (errnum int) {
 	if err != nil {
-		logger.Write_DEBUG("Error: " + err.Error())
+		logger.WriteDebug("Error: " + err.Error())
 		errnum = 1
 	}
 	return errnum
 }
 
-func (logger *FileLoggerimpl) WriteErr_Request_DEBUG(err error, uuid string) (errnum int) {
+func (logger *FileLoggerImpl) WriteErrRequestDebug(err error, uuid string) (errnum int) {
 	if err != nil {
-		logger.Write_DEBUG(uuid + " : Error: " + err.Error())
+		logger.WriteDebug(uuid + " : Error: " + err.Error())
 		errnum = 1
 	}
 	return errnum

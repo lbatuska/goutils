@@ -6,14 +6,14 @@ import (
 )
 
 // A logger without logging functionality
-type NullLoggerimpl struct{}
+type NullLoggerImpl struct{}
 
 // A logger that logs to sdtout
-type ConsoleLoggerimpl struct {
+type ConsoleLoggerImpl struct {
 	messages chan string
 }
 
-type FileLoggerimpl struct {
+type FileLoggerImpl struct {
 	messages chan string
 	mutex    *sync.Mutex
 	logFile  *os.File

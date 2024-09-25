@@ -8,21 +8,21 @@ func Unwrap[T any](val Unwrappable[T]) T {
 	return val.Unwrap()
 }
 
-func Unwrap_or[T any](val Unwrappable[T]) (def T) {
-	return val.Unwrap_or(def)
+func UnwrapOr[T any](val Unwrappable[T]) (def T) {
+	return val.UnwrapOr(def)
 }
 
-func Unwrap_or_default[T any](val Unwrappable[T]) T {
-	return val.Unwrap_or_default()
+func UnwrapOrDefault[T any](val Unwrappable[T]) T {
+	return val.UnwrapOrDefault()
 }
 
-func Unwrap_or_else[T any](val Unwrappable[T], f func() T) T {
-	return val.Unwrap_or_else(f)
+func UnwrapOrElse[T any](val Unwrappable[T], f func() T) T {
+	return val.UnwrapOrElse(f)
 }
 
 // Returns if the underlying data has a Value (false in case of None or Error)
-func Has_value(val ValueContainer) bool {
-	return val.Has_value()
+func HasValue(val ValueContainer) bool {
+	return val.HasValue()
 }
 
 func ResultWrap[T any](val T, err error) Result[T] {
