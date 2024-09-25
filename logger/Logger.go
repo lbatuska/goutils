@@ -14,19 +14,19 @@ const logbuffersize int32 = 200
 var DEBUG bool = true
 
 var (
-	loggerInstance LGRImpl
+	loggerInstance Logger
 	loggeronce     sync.Once
 	loggerlogonce  sync.Once
 )
 
-func Create(instance LGRImpl) {
+func Create(instance Logger) {
 	loggeronce.Do(func() {
 		loggerInstance = instance
 		loggerInstance.init()
 	})
 }
 
-func Logger() LGRImpl {
+func LoggerInstance() Logger {
 	return loggerInstance
 }
 
@@ -42,7 +42,7 @@ func PrintJson[T any](entity *T) string {
 
 func ExampleLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		Logger().Write_DEBUG(fmt.Sprintf("\tRequest from: %s to: Host: %s URL: %s \tWith HEADERS: %s \tWith BODY: %s", r.RemoteAddr, r.Host, r.URL, r.Header, r.Body))
+		LoggerInstance().WriteDebug(fmt.Sprintf("\tRequest from: %s to: Host: %s URL: %s \tWith HEADERS: %s \tWith BODY: %s", r.RemoteAddr, r.Host, r.URL, r.Header, r.Body))
 		next.ServeHTTP(w, r)
 	})
 }

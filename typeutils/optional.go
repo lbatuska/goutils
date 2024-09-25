@@ -16,10 +16,10 @@ func None_t[T any](T) Optional[T] {
 
 // CTORS END
 
-func (opt Optional[T]) Is_some() bool { return opt.present }
-func (opt Optional[T]) Is_none() bool { return !opt.present }
+func (opt Optional[T]) IsSome() bool { return opt.present }
+func (opt Optional[T]) IsNone() bool { return !opt.present }
 
-func (opt Optional[T]) Has_value() bool { return opt.Is_some() }
+func (opt Optional[T]) HasValue() bool { return opt.IsSome() }
 
 // UNWRAPPABLE INTERFACE BEGIN
 func (opt Optional[T]) Expect(msg string) T {
@@ -36,14 +36,14 @@ func (opt Optional[T]) Unwrap() T {
 	panic("Tried unwrapping an Optional that did not have a value!")
 }
 
-func (opt Optional[T]) Unwrap_or(val T) T {
+func (opt Optional[T]) UnwrapOr(val T) T {
 	if opt.present {
 		return opt.value
 	}
 	return val
 }
 
-func (opt Optional[T]) Unwrap_or_default() T {
+func (opt Optional[T]) UnwrapOrDefault() T {
 	if opt.present {
 		return opt.value
 	}
@@ -51,7 +51,7 @@ func (opt Optional[T]) Unwrap_or_default() T {
 	return res
 }
 
-func (opt Optional[T]) Unwrap_or_else(f func() T) T {
+func (opt Optional[T]) UnwrapOrElse(f func() T) T {
 	if opt.present {
 		return opt.value
 	}
@@ -61,7 +61,7 @@ func (opt Optional[T]) Unwrap_or_else(f func() T) T {
 // UNWRAPPABLE INTERFACE END
 
 // transforms Some(v) to Ok(v), and None to Err(err)
-func (opt Optional[T]) Ok_or(err error) Result[T] {
+func (opt Optional[T]) OkOr(err error) Result[T] {
 	if opt.present {
 		return Ok(opt.value)
 	}
@@ -69,7 +69,7 @@ func (opt Optional[T]) Ok_or(err error) Result[T] {
 }
 
 // transforms Some(v) to Ok(v), and None to a value of Err using the provided function
-func (opt Optional[T]) Ok_or_else(f func() error) Result[T] {
+func (opt Optional[T]) OkOrElse(f func() error) Result[T] {
 	if opt.present {
 		return Ok(opt.value)
 	}

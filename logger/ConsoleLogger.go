@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-func (lgr *ConsoleLoggerimpl) init() {
+func (lgr *ConsoleLoggerImpl) init() {
 	lgr.messages = make(chan string, logbuffersize)
 }
 
-func (logger *ConsoleLoggerimpl) StartLogger() {
+func (logger *ConsoleLoggerImpl) StartLogger() {
 	fmt.Println("Starting Logger")
 	loggerlogonce.Do(func() {
 		for msg := range logger.messages {
@@ -18,15 +18,15 @@ func (logger *ConsoleLoggerimpl) StartLogger() {
 	})
 }
 
-func (logger *ConsoleLoggerimpl) Write(message string) {
+func (logger *ConsoleLoggerImpl) Write(message string) {
 	logger.messages <- time.Now().Format(time.UnixDate) + " : " + message + "\n"
 }
 
-func (logger *ConsoleLoggerimpl) Write_Request(message string, uuid string) {
+func (logger *ConsoleLoggerImpl) WriteRequest(message string, uuid string) {
 	logger.Write(uuid + " : " + message)
 }
 
-func (logger *ConsoleLoggerimpl) WriteErr(err error) (errnum int) {
+func (logger *ConsoleLoggerImpl) WriteErr(err error) (errnum int) {
 	if err != nil {
 		logger.Write("Error: " + err.Error())
 		errnum = 1
@@ -34,7 +34,7 @@ func (logger *ConsoleLoggerimpl) WriteErr(err error) (errnum int) {
 	return errnum
 }
 
-func (logger *ConsoleLoggerimpl) WriteErr_Request(err error, uuid string) (errnum int) {
+func (logger *ConsoleLoggerImpl) WriteErrRequest(err error, uuid string) (errnum int) {
 	if err != nil {
 		logger.Write(uuid + " : Error: " + err.Error())
 		errnum = 1
@@ -42,29 +42,29 @@ func (logger *ConsoleLoggerimpl) WriteErr_Request(err error, uuid string) (errnu
 	return errnum
 }
 
-func (logger *ConsoleLoggerimpl) Write_DEBUG(message string) {
+func (logger *ConsoleLoggerImpl) WriteDebug(message string) {
 	if DEBUG {
 		logger.Write(message)
 	}
 }
 
-func (logger *ConsoleLoggerimpl) Write_Request_DEBUG(message string, uuid string) {
+func (logger *ConsoleLoggerImpl) WriteRequestDebug(message string, uuid string) {
 	if DEBUG {
-		logger.Write_Request(message, uuid)
+		logger.WriteRequest(message, uuid)
 	}
 }
 
-func (logger *ConsoleLoggerimpl) WriteErr_DEBUG(err error) (errnum int) {
+func (logger *ConsoleLoggerImpl) WriteErrDebug(err error) (errnum int) {
 	if err != nil {
-		logger.Write_DEBUG("Error: " + err.Error())
+		logger.WriteDebug("Error: " + err.Error())
 		errnum = 1
 	}
 	return errnum
 }
 
-func (logger *ConsoleLoggerimpl) WriteErr_Request_DEBUG(err error, uuid string) (errnum int) {
+func (logger *ConsoleLoggerImpl) WriteErrRequestDebug(err error, uuid string) (errnum int) {
 	if err != nil {
-		logger.Write_DEBUG(uuid + " : Error: " + err.Error())
+		logger.WriteDebug(uuid + " : Error: " + err.Error())
 		errnum = 1
 	}
 	return errnum
