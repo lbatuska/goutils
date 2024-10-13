@@ -20,6 +20,56 @@ func AssertNotEqual[T comparable](t *testing.T, expected T, actual T) {
 	t.Errorf("❌ [%T](%+v) == [%T](%+v)", expected, expected, actual, actual)
 }
 
-func AssertTrue(t *testing.T, expected bool) { AssertEqual(t, true, expected) }
+func AssertTrue(t *testing.T, expected bool) {
+	t.Helper()
+	if expected {
+		t.Logf("✅ [%T](%+v) != [%T](%+v)", expected, expected, true, true)
+		return
+	}
+	t.Errorf("❌ [%T](%+v) == [%T](%+v)", expected, expected, true, true)
+}
 
-func AssertError(t *testing.T, expected error) { AssertTrue(t, expected != nil) }
+func AssertFalse(t *testing.T, expected bool) {
+	t.Helper()
+	if expected {
+		t.Logf("✅ [%T](%+v) != [%T](%+v)", expected, expected, false, false)
+		return
+	}
+	t.Errorf("❌ [%T](%+v) == [%T](%+v)", expected, expected, false, false)
+}
+
+func AssertError(t *testing.T, expected error) {
+	t.Helper()
+	if expected != nil {
+		t.Logf("✅ [%T](%+v) != [%T](%+v)", expected, expected, nil, nil)
+		return
+	}
+	t.Errorf("❌ [%T](%+v) == [%T](%+v)", expected, expected, nil, nil)
+}
+
+func AssertNotError(t *testing.T, expected error) {
+	t.Helper()
+	if expected == nil {
+		t.Logf("✅ [%T](%+v) != [%T](%+v)", expected, expected, nil, nil)
+		return
+	}
+	t.Errorf("❌ [%T](%+v) == [%T](%+v)", expected, expected, nil, nil)
+}
+
+func AssertNil[T any](t *testing.T, expected *T) {
+	t.Helper()
+	if expected == nil {
+		t.Logf("✅ [%T](%+v) == [%T](%+v)", expected, expected, nil, nil)
+		return
+	}
+	t.Errorf("❌ [%T](%+v) != [%T](%+v)", expected, expected, nil, nil)
+}
+
+func AssertNotNil[T any](t *testing.T, expected *T) {
+	t.Helper()
+	if expected != nil {
+		t.Logf("✅ [%T](%+v) == [%T](%+v)", expected, expected, nil, nil)
+		return
+	}
+	t.Errorf("❌ [%T](%+v) != [%T](%+v)", expected, expected, nil, nil)
+}
