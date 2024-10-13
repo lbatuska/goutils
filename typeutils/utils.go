@@ -38,3 +38,7 @@ func ResultWrapb[T any](err error, val T) Result[T] {
 	}
 	return Err[T](err)
 }
+
+func Ptr[T any](v T) *T {
+	return &v
+}
