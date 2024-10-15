@@ -1,4 +1,4 @@
-package typeutils
+package Type
 
 func Expect[T any](val Unwrappable[T], msg string) T {
 	return val.Expect(msg)

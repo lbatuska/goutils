@@ -1,4 +1,4 @@
-package logger
+package Logger
 
 func (lgr *NullLoggerImpl) init() {}
 

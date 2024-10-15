@@ -1,4 +1,4 @@
-package logger
+package Logger
 
 // Message format(s)
 //
