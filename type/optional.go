@@ -1,6 +1,6 @@
 package Type
 
-import "github.com/lbatuska/goutils/assert"
+import Assert "github.com/lbatuska/goutils/assert"
 
 // CTORS BEGIN
 func Some[T any](value T) Optional[T] {
@@ -41,7 +41,7 @@ func (opt *Optional[T]) HasValue() bool {
 
 // UNWRAPPABLE INTERFACE BEGIN
 func (opt *Optional[T]) Expect(msg string) T {
-	assert.NotNil(opt)
+	Assert.NotNil(opt)
 	if opt.present {
 		return opt.value
 	}
@@ -49,7 +49,7 @@ func (opt *Optional[T]) Expect(msg string) T {
 }
 
 func (opt *Optional[T]) Unwrap() T {
-	assert.NotNil(opt)
+	Assert.NotNil(opt)
 	if opt.present {
 		return opt.value
 	}
