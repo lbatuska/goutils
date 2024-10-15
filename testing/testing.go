@@ -31,7 +31,7 @@ func AssertTrue(t *testing.T, expected bool) {
 
 func AssertFalse(t *testing.T, expected bool) {
 	t.Helper()
-	if expected {
+	if !expected {
 		t.Logf("✅ [%T](%+v) != [%T](%+v)", expected, expected, false, false)
 		return
 	}
