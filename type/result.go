@@ -1,9 +1,9 @@
-package typeutils
+package Type
 
 import (
 	"errors"
 
-	"github.com/lbatuska/goutils/assert"
+	Assert "github.com/lbatuska/goutils/assert"
 )
 
 // CTORS BEGIN
@@ -44,7 +44,7 @@ func (res *Result[T]) HasValue() bool {
 
 // UNWRAPPABLE INTERFACE
 func (res *Result[T]) Expect(msg string) T {
-	assert.NotNil(res)
+	Assert.NotNil(res)
 	if res.err == nil {
 		return res.value
 	}
@@ -52,7 +52,7 @@ func (res *Result[T]) Expect(msg string) T {
 }
 
 func (res *Result[T]) Unwrap() T {
-	assert.NotNil(res)
+	Assert.NotNil(res)
 	if res.err == nil {
 		return res.value
 	}
