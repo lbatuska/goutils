@@ -1,4 +1,4 @@
-package typeutils
+package Type
 
 import (
 	"errors"

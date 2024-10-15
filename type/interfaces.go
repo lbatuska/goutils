@@ -1,4 +1,4 @@
-package typeutils
+package Type
 
 // Created to abstract over Is_some and Is_ok
 type ValueContainer interface {

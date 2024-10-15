@@ -1,4 +1,4 @@
-package typeutils
+package Type
 
 type Optional[T any] struct {
 	value   T
