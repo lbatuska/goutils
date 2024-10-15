@@ -73,3 +73,33 @@ func AssertNotNil[T any](t *testing.T, expected *T) {
 	}
 	t.Errorf("❌ [%T](%+v) != [%T](%+v)", expected, expected, nil, nil)
 }
+
+func internalAssertPanic(f func()) (b bool) {
+	b = true
+	defer func() {
+		_ = recover()
+	}()
+	f()
+
+	return false
+}
+
+func AssertPanic(t *testing.T, f func()) {
+	t.Helper()
+	x := internalAssertPanic(f)
+	if x {
+		t.Log("✅ Code correctly panicked!")
+	} else {
+		t.Error("❌ Code was supposed to panic!")
+	}
+}
+
+func AssertNotPanic(t *testing.T, f func()) {
+	t.Helper()
+	x := internalAssertPanic(f)
+	if !x {
+		t.Log("✅ Code correctly did not panic!")
+	} else {
+		t.Error("❌ Code panicked!")
+	}
+}
