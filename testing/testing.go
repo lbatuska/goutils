@@ -23,10 +23,10 @@ func AssertNotEqual[T comparable](t *testing.T, expected T, actual T) {
 func AssertTrue(t *testing.T, expected bool) {
 	t.Helper()
 	if expected {
-		t.Logf("✅ [%T](%+v) != [%T](%+v)", expected, expected, true, true)
+		t.Logf("✅ [%T](%+v) == [%T](%+v)", expected, expected, true, true)
 		return
 	}
-	t.Errorf("❌ [%T](%+v) == [%T](%+v)", expected, expected, true, true)
+	t.Errorf("❌ [%T](%+v) != [%T](%+v)", expected, expected, true, true)
 }
 
 func AssertFalse(t *testing.T, expected bool) {
