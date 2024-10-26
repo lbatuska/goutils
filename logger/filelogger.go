@@ -7,8 +7,16 @@ import (
 	"time"
 )
 
+func (lgr *FileLoggerImpl) SetLogFilePath(path string) {
+	lgr.initfilepath = path
+}
+
 func (lgr *FileLoggerImpl) init() {
-	lgr.filepath = "./log"
+	if lgr.initfilepath == "" {
+		lgr.filepath = "./log"
+	} else {
+		lgr.filepath = lgr.initfilepath
+	}
 	lgr.messages = make(chan string, Logbuffersize)
 	envfp, envexist := os.LookupEnv("LOGFILE_GO_LOGGER")
 	if envexist {

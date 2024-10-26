@@ -14,8 +14,9 @@ type ConsoleLoggerImpl struct {
 }
 
 type FileLoggerImpl struct {
-	messages chan string
-	mutex    *sync.Mutex
-	logFile  *os.File
-	filepath string
+	messages     chan string
+	mutex        *sync.Mutex
+	logFile      *os.File
+	filepath     string
+	initfilepath string
 }
