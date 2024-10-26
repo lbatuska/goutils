@@ -6,7 +6,7 @@ import (
 )
 
 func (lgr *ConsoleLoggerImpl) init() {
-	lgr.messages = make(chan string, logbuffersize)
+	lgr.messages = make(chan string, Logbuffersize)
 }
 
 func (logger *ConsoleLoggerImpl) StartLogger() {

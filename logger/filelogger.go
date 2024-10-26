@@ -9,7 +9,7 @@ import (
 
 func (lgr *FileLoggerImpl) init() {
 	lgr.filepath = "./log"
-	lgr.messages = make(chan string, logbuffersize)
+	lgr.messages = make(chan string, Logbuffersize)
 	envfp, envexist := os.LookupEnv("LOGFILE_GO_LOGGER")
 	if envexist {
 		if len(envfp) > 0 {
