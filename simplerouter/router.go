@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-// Use this router for graceful shutdown
 func (rg *RouteGroup) StartServer(addr string) *http.Server {
 	server := &http.Server{
 		Addr:    addr,
@@ -116,6 +115,17 @@ func (rg *RouteGroup) registerRoute(method string, path string, handler http.Han
 	fullPath := method + " " + path
 
 	rg.mux.HandleFunc(fullPath, rg.applyMiddlewares(handler).ServeHTTP)
+}
+
+func (rg *RouteGroup) SubPath(path string) *RouteGroup {
+	rgc := &RouteGroup{
+		mux:      rg.mux,
+		basePath: rg.basePath + path + "/",
+	}
+	middlewares := make([]Middleware, len(rg.middlewares))
+	copy(middlewares, rg.middlewares)
+	rgc.middlewares = middlewares
+	return rgc
 }
 
 func (rg *RouteGroup) HandleFunc(method string, path string, handler http.HandlerFunc) {
