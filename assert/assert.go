@@ -3,6 +3,7 @@ package Assert
 import (
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 )
@@ -21,18 +22,69 @@ func file_func_line() (string, string, int) {
 	return f, fn, l
 }
 
-func NotNil[T any](v *T) {
+// Returns false for reflect.Invalid, you should handle that before calling this function
+func IsNillable(kind reflect.Kind) bool {
+	switch kind {
+	// based on reflect/type.go -> Kind
+	case reflect.Ptr, reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Slice, reflect.UnsafePointer:
+		return true
+	default:
+		return false
+	}
+}
+
+func NotNil[T any](v T) {
+	val := reflect.ValueOf(v)
+	kind := val.Kind()
+	if reflect.Invalid == kind {
+		f, fn, l := file_func_line()
+		panic(fmt.Sprintf("%sValue should not be nil!(It is reflect.Invalid)%s %s/%s():%d => [%T](%+v)%s",
+			colorRed, colorGreen, f, fn, l, v, v, colorNone))
+	}
+	if IsNillable(kind) {
+		if val.IsNil() {
+			f, fn, l := file_func_line()
+			panic(fmt.Sprintf("%sValue should not be nil!%s %s/%s():%d => [%T](%+v)%s",
+				colorRed, colorGreen, f, fn, l, v, v, colorNone))
+		}
+	}
+	// If it's neither Invalid nor Nil-able it cannot be nil
+}
+
+func Nil[T any](v T) {
+	val := reflect.ValueOf(v)
+	kind := val.Kind()
+	if reflect.Invalid == kind {
+		f, fn, l := file_func_line()
+		panic(fmt.Sprintf("%sValue should be nil!(It is reflect.Invalid)%s %s/%s():%d => [%T](%+v)%s",
+			colorRed, colorGreen, f, fn, l, v, v, colorNone))
+	}
+
+	if IsNillable(kind) {
+		if !val.IsNil() {
+			f, fn, l := file_func_line()
+			panic(fmt.Sprintf("%sValue should be nil!%s %s/%s():%d => [%T](%+v)%s",
+				colorRed, colorGreen, f, fn, l, v, v, colorNone))
+		}
+	}
+	// If it's neither Invalid nor Nil-able it cannot be nil
+	f, fn, l := file_func_line()
+	panic(fmt.Sprintf("%sValue should be nil!%s %s/%s():%d => [%T](%+v)%s",
+		colorRed, colorGreen, f, fn, l, v, v, colorNone))
+}
+
+func NotNilPtr[T any](v *T) {
 	if v == nil {
 		f, fn, l := file_func_line()
-		panic(fmt.Sprintf("%sValue should not be nil!%s %s/%s():%d => [%T](%+v)%s",
+		panic(fmt.Sprintf("%sPointer value should not be nil!%s %s/%s():%d => [%T](%+v)%s",
 			colorRed, colorGreen, f, fn, l, v, v, colorNone))
 	}
 }
 
-func Nil[T any](v *T) {
+func NilPtr[T any](v *T) {
 	if v != nil {
 		f, fn, l := file_func_line()
-		panic(fmt.Sprintf("%sValue should be nil!%s %s/%s():%d => [%T](%+v)%s",
+		panic(fmt.Sprintf("%sPointer value should be nil!%s %s/%s():%d => [%T](%+v)%s",
 			colorRed, colorGreen, f, fn, l, v, v, colorNone))
 	}
 }
