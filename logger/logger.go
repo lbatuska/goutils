@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"reflect"
 	"sync"
-
-	Assert "github.com/lbatuska/goutils/assert"
 )
 
 // Use this in the init() function to initialize the size of the buffered channel
@@ -29,7 +27,6 @@ func Create(instance Logger) {
 }
 
 func LoggerInstance() Logger {
-	Assert.NotNil(loggerInstance)
 	return loggerInstance
 }
 
