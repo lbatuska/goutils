@@ -12,9 +12,11 @@ func (lgr *ConsoleLoggerImpl) init() {
 func (logger *ConsoleLoggerImpl) StartLogger() {
 	fmt.Println("Starting Logger")
 	loggerlogonce.Do(func() {
-		for msg := range logger.messages {
-			fmt.Print(msg)
-		}
+		go func() {
+			for msg := range logger.messages {
+				fmt.Print(msg)
+			}
+		}()
 	})
 }
 

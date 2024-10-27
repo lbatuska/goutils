@@ -40,25 +40,27 @@ func (lgr *FileLoggerImpl) init() {
 func (logger *FileLoggerImpl) StartLogger() {
 	fmt.Println("Starting FileLogger")
 	loggerlogonce.Do(func() {
-		for msg := range logger.messages {
+		go func() {
+			for msg := range logger.messages {
 
-			logger.mutex.Lock()
-			_, err := logger.logFile.WriteString(msg)
-			if err != nil {
-				fmt.Println(err.Error())
-				logger.logFile.Close()
-				logger.mutex.Unlock()
-				panic("Failed to write to file")
-			}
-			err = logger.logFile.Sync()
-			if err != nil {
-				logger.logFile.Close()
-				logger.mutex.Unlock()
+				logger.mutex.Lock()
+				_, err := logger.logFile.WriteString(msg)
+				if err != nil {
+					fmt.Println(err.Error())
+					logger.logFile.Close()
+					logger.mutex.Unlock()
+					panic("Failed to write to file")
+				}
+				err = logger.logFile.Sync()
+				if err != nil {
+					logger.logFile.Close()
+					logger.mutex.Unlock()
 
-				panic("Failed to write to file")
+					panic("Failed to write to file")
+				}
+				logger.mutex.Unlock()
 			}
-			logger.mutex.Unlock()
-		}
+		}()
 	})
 	// Technically we should do this but this will never run
 	// logger.mutex.Lock()
