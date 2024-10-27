@@ -12,21 +12,37 @@ func Test_notNil(t *testing.T) {
 		NotNil(something)
 	})
 
+	Testing.AssertPanic(t, func() {
+		NotNilPtr(something)
+	})
+
 	somethingElse := make([]int, 5)
 	Testing.AssertNotPanic(t, func() {
 		NotNil(&somethingElse)
+	})
+
+	Testing.AssertNotPanic(t, func() {
+		NotNilPtr(&somethingElse)
 	})
 }
 
 func Test_nil(t *testing.T) {
 	var something *interface{}
-	Testing.AssertNotPanic(t, func() {
+	Testing.AssertPanic(t, func() {
 		Nil(something)
+	})
+
+	Testing.AssertNotPanic(t, func() {
+		NilPtr(something)
 	})
 
 	somethingElse := make([]int, 5)
 	Testing.AssertPanic(t, func() {
 		Nil(&somethingElse)
+	})
+
+	Testing.AssertPanic(t, func() {
+		NilPtr(&somethingElse)
 	})
 }
 
