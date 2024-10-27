@@ -9,7 +9,7 @@ import (
 )
 
 // Use this in the init() function to initialize the size of the buffered channel
-const Logbuffersize int32 = 200
+var Logbuffersize int32 = 200
 
 var DEBUG bool = true
 
