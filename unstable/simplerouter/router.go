@@ -136,8 +136,8 @@ func (rg *RouteGroup) Handle(method string, path string, handler http.Handler) {
 	rg.HandleFunc(method, path, handler.ServeHTTP)
 }
 
-func (rg *RouteGroup) HandleSubpath(path string, handler http.Handler) {
-	rg.mux.Handle(path, handler)
+func (rg *RouteGroup) SubpathHandle(path string, handler http.Handler) {
+	rg.registerRoute("", path, handler.ServeHTTP)
 }
 
 func (rg *RouteGroup) GET(path string, handler http.Handler) {
