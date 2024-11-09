@@ -137,7 +137,7 @@ func (rg *RouteGroup) Handle(method string, path string, handler http.Handler) {
 }
 
 func (rg *RouteGroup) SubpathHandle(path string, handler http.Handler) {
-	rg.registerRoute("", path, handler.ServeHTTP)
+	rg.Handle("", path, handler)
 }
 
 func (rg *RouteGroup) GET(path string, handler http.Handler) {
