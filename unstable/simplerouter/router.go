@@ -62,7 +62,16 @@ func (rg *RouteGroup) StartWithGracefulShutdown(addr string) {
 
 // http.ListenAndServe takes a Handler interface defined as: ServeHTTP(ResponseWriter, *Request)
 func (rg *RouteGroup) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	rg.mux.ServeHTTP(w, r)
+	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rg.mux.ServeHTTP(w, r)
+	})
+
+	mwlen := len(rg.global_middlewares) - 1
+	for i := range rg.global_middlewares {
+		handler = rg.global_middlewares[mwlen-i](handler)
+	}
+
+	handler.ServeHTTP(w, r)
 }
 
 // / Handler returns the handler to use for the given request, ... propagate call to http library
@@ -92,6 +101,24 @@ func (rg *RouteGroup) PopMiddleware() Middleware {
 	lastIndex := len(rg.middlewares) - 1
 	lastMiddleware := rg.middlewares[lastIndex]
 	rg.middlewares = rg.middlewares[:lastIndex]
+
+	return lastMiddleware
+}
+
+func (rg *RouteGroup) PushGlobalMiddleware(first Middleware, others ...Middleware) *RouteGroup {
+	rg.global_middlewares = append(rg.global_middlewares, first)
+	rg.global_middlewares = append(rg.global_middlewares, others...)
+	return rg
+}
+
+func (rg *RouteGroup) PopGlobalMiddleware() Middleware {
+	if len(rg.global_middlewares) == 0 {
+		return nil
+	}
+
+	lastIndex := len(rg.global_middlewares) - 1
+	lastMiddleware := rg.global_middlewares[lastIndex]
+	rg.global_middlewares = rg.global_middlewares[:lastIndex]
 
 	return lastMiddleware
 }
