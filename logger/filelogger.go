@@ -68,6 +68,10 @@ func (logger *FileLoggerImpl) StartLogger() {
 	// logger.mutex.Unlock()
 }
 
+func (logger *FileLoggerImpl) StopLogger() {
+	close(logger.messages)
+}
+
 func (logger *FileLoggerImpl) Write(message string) {
 	logger.messages <- time.Now().Format(time.UnixDate) + " : " + message + "\n"
 }

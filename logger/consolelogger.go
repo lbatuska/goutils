@@ -20,6 +20,10 @@ func (logger *ConsoleLoggerImpl) StartLogger() {
 	})
 }
 
+func (logger *ConsoleLoggerImpl) StopLogger() {
+	close(logger.messages)
+}
+
 func (logger *ConsoleLoggerImpl) Write(message string) {
 	logger.messages <- time.Now().Format(time.UnixDate) + " : " + message + "\n"
 }

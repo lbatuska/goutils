@@ -4,6 +4,8 @@ func (lgr *NullLoggerImpl) init() {}
 
 func (logger *NullLoggerImpl) StartLogger() {}
 
+func (logger *NullLoggerImpl) StopLogger() {}
+
 func (logger *NullLoggerImpl) Write(message string) {}
 
 func (logger *NullLoggerImpl) WriteRequest(message string, request string) {}

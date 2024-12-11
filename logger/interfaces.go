@@ -20,6 +20,7 @@ type (
 		init()
 		// Start an infinite loop to write out messages from the channel
 		StartLogger()
+		StopLogger()
 		Write(message string)
 		WriteRequest(message string, uuid string)
 		// If an error that is not nill passed in it logs the error and returns 1, otherwise 0
@@ -32,6 +33,7 @@ type (
 		init()
 		// Start an infinite loop to write out messages from the channel
 		StartLogger()
+		StopLogger()
 		WriteDebug(message string)
 		WriteRequestDebug(message string, uuid string)
 		WriteErrDebug(err error) (errnum int)
