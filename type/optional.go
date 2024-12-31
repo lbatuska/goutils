@@ -3,6 +3,7 @@ package Type
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	Assert "github.com/lbatuska/goutils/assert"
 )
@@ -200,6 +201,21 @@ func (opt *Optional[T]) Scan(src interface{}) error {
 			*v = s
 			opt.present = true
 			return nil
+		}
+
+	case *time.Time:
+		if t, ok := src.(time.Time); ok {
+			*v = t
+			opt.present = true
+			return nil
+		}
+		if b, ok := src.([]byte); ok {
+			parsedTime, err := time.Parse(time.RFC3339, string(b))
+			if err == nil {
+				*v = parsedTime
+				opt.present = true
+				return nil
+			}
 		}
 	}
 	// We couldnt parse the value

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	Assert "github.com/lbatuska/goutils/assert"
 )
@@ -227,6 +228,23 @@ func (res *Result[T]) Scan(src interface{}) error {
 			*v = s
 			res.err = nil
 			return nil
+		}
+		res.err = mismatchErr
+		return res.err
+
+	case *time.Time:
+		if t, ok := src.(time.Time); ok {
+			*v = t
+			res.err = nil
+			return nil
+		}
+		if b, ok := src.([]byte); ok {
+			parsedTime, err := time.Parse(time.RFC3339, string(b)) // or use other formats as necessary
+			if err == nil {
+				*v = parsedTime
+				res.err = nil
+				return nil
+			}
 		}
 		res.err = mismatchErr
 		return res.err
