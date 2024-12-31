@@ -1,6 +1,11 @@
 package Type
 
-import Assert "github.com/lbatuska/goutils/assert"
+import (
+	"database/sql"
+	"fmt"
+
+	Assert "github.com/lbatuska/goutils/assert"
+)
 
 // CTORS BEGIN
 func Some[T any](value T) Optional[T] {
@@ -105,4 +110,99 @@ func (opt *Optional[T]) OkOrElse(f func() error) Result[T] {
 		}
 	}
 	return Err[T](f())
+}
+
+func (opt *Optional[T]) Scan(src interface{}) error {
+	// DB had a null value
+	if src == nil {
+		opt.present = false
+		return nil
+	}
+	// If T is a scanner
+	if scanner, ok := any(&opt.value).(sql.Scanner); ok {
+		if err := scanner.Scan(src); err != nil {
+			opt.present = false
+			return err
+		}
+		opt.present = true
+		return nil
+	}
+	// We implement parsing for some builtin types
+	opt.present = false
+	switch v := any(&opt.value).(type) {
+
+	case *string:
+		if str, ok := src.(string); ok {
+			*v = str
+			opt.present = true
+			return nil
+		}
+		if b, ok := src.([]byte); ok {
+			*v = string(b)
+			opt.present = true
+			return nil
+		}
+
+	case *int:
+		if s, ok := src.(int); ok {
+			*v = s
+			opt.present = true
+			return nil
+		}
+	case *int32:
+		if s, ok := src.(int32); ok {
+			*v = s
+			opt.present = true
+			return nil
+		}
+	case *int64:
+		if s, ok := src.(int64); ok {
+			*v = s
+			opt.present = true
+			return nil
+		}
+
+	case *bool:
+		switch s := src.(type) {
+		case bool:
+			*v = s
+			opt.present = true
+			return nil
+			// We could technically allow this, however we try to avoid implicit conversions to ensure type safety.
+			// case string:
+			// 	if s == "1" || s == "true" || s == "t" {
+			// 		*v = true
+			// 		opt.present = true
+			// 		return nil
+			// 	}
+			// 	if s == "0" || s == "false" || s == "f" {
+			// 		*v = false
+			// 		opt.present = true
+			// 		return nil
+			// 	}
+		}
+
+	case *float64:
+		switch s := src.(type) {
+		case float64:
+			*v = s
+			opt.present = true
+			return nil
+		case float32:
+			*v = float64(s)
+			opt.present = true
+			return nil
+		}
+
+	case *float32:
+		switch s := src.(type) {
+		case float32:
+			*v = s
+			opt.present = true
+			return nil
+		}
+	}
+	// We couldnt parse the value
+	opt.present = false
+	return fmt.Errorf("unsupported type %T or differs from Optional[%T], and the type doesn't implement sql.Scanner", src, opt.value)
 }

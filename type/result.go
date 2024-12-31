@@ -1,7 +1,9 @@
 package Type
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 
 	Assert "github.com/lbatuska/goutils/assert"
 )
@@ -133,4 +135,104 @@ func (res *Result[T]) Err() Optional[error] {
 		return Optional[error]{value: res.err, present: true}
 	}
 	return Optional[error]{present: false}
+}
+
+func (res *Result[T]) Scan(src interface{}) error {
+	// DB had a null value
+	if src == nil {
+		res.err = errors.New("src was nil!")
+		return nil
+	}
+	// If T is a scanner
+	if scanner, ok := any(&res.value).(sql.Scanner); ok {
+		if err := scanner.Scan(src); err != nil {
+			res.err = err
+			return err
+		}
+		res.err = nil
+		return nil
+	}
+	// We implement parsing for some builtin types
+	mismatchErr := fmt.Errorf("Type of src (%T) doesn't match type of Result[%T]!", src, res.value)
+
+	switch v := any(&res.value).(type) {
+
+	case *string:
+		if str, ok := src.(string); ok {
+			*v = str
+			res.err = nil
+			return nil
+		}
+		if b, ok := src.([]byte); ok {
+			*v = string(b)
+			res.err = nil
+			return nil
+		}
+		res.err = mismatchErr
+		return res.err
+
+	case *int:
+		if s, ok := src.(int); ok {
+			*v = s
+			res.err = nil
+			return nil
+		}
+		res.err = mismatchErr
+		return res.err
+	case *int32:
+		if s, ok := src.(int32); ok {
+			*v = s
+			res.err = nil
+			return nil
+		}
+		res.err = mismatchErr
+		return res.err
+	case *int64:
+		if s, ok := src.(int64); ok {
+			*v = s
+			res.err = nil
+			return nil
+		}
+		res.err = mismatchErr
+		return res.err
+
+	case *bool:
+		switch s := src.(type) {
+		case bool:
+			*v = s
+			res.err = nil
+			return nil
+		}
+		res.err = mismatchErr
+		return res.err
+
+	case *float64:
+		switch s := src.(type) {
+		case float64:
+			*v = s
+			res.err = nil
+			return nil
+		case float32:
+			*v = float64(s)
+			res.err = nil
+			return nil
+
+		}
+		res.err = mismatchErr
+		return res.err
+
+	case *float32:
+		switch s := src.(type) {
+		case float32:
+			*v = s
+			res.err = nil
+			return nil
+		}
+		res.err = mismatchErr
+		return res.err
+	}
+	// We couldnt parse the value
+	err := fmt.Errorf("Unsupported type %T, and the type doesn't implement sql.Scanner!", src)
+	res.err = err
+	return err
 }
