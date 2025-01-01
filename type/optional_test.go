@@ -20,16 +20,19 @@ var (
 
 func Test_optionalScan(t *testing.T) {
 	a := None[string]()
-	b := None[*string]()
-	c := None[string]()
+	b := None[string]()
+	c := Some("Not C!")
 	d := None[int]()
+	e := Some(Ptr("Not E!"))
 	a.Scan("a")
 	b.Scan("b")
 	c.Scan(Ptr("c"))
+	e.Scan(Ptr("e"))
 	Testing.AssertEqual(t, "a", a.Unwrap())
-	Testing.AssertEqual(t, "b", *b.Unwrap())
+	Testing.AssertEqual(t, "b", b.Unwrap())
 	Testing.AssertEqual(t, "c", c.Unwrap())
 	Testing.AssertPanic(t, func() { d.Unwrap() })
+	Testing.AssertEqual(t, "e", *e.Unwrap())
 }
 
 func Test_optionalSome(t *testing.T) {
