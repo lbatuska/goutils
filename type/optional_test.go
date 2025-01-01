@@ -18,6 +18,20 @@ var (
 	nilOptional = (*Optional[int])(nil)
 )
 
+func Test_optionalScan(t *testing.T) {
+	a := None[string]()
+	b := None[*string]()
+	c := None[string]()
+	d := None[int]()
+	a.Scan("a")
+	b.Scan("b")
+	c.Scan(Ptr("c"))
+	Testing.AssertEqual(t, "a", a.Unwrap())
+	Testing.AssertEqual(t, "b", *b.Unwrap())
+	Testing.AssertEqual(t, "c", c.Unwrap())
+	Testing.AssertPanic(t, func() { d.Unwrap() })
+}
+
 func Test_optionalSome(t *testing.T) {
 	Testing.AssertEqual(t, x, y)
 	Testing.AssertEqual(t, v, u)

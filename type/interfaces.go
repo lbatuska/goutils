@@ -1,5 +1,7 @@
 package Type
 
+import "database/sql"
+
 // Created to abstract over Is_some and Is_ok
 type ValueContainer interface {
 	HasValue() bool
@@ -43,4 +45,6 @@ var (
 	_ Resulter[any]   = (*Result[any])(nil)
 	_ ValueContainer  = (*Optional[any])(nil)
 	_ ValueContainer  = (*Result[any])(nil)
+	_ sql.Scanner     = (*Optional[any])(nil)
+	// _ sql.Scanner     = (*Result[any])(nil)
 )
