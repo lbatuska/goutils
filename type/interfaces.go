@@ -1,6 +1,9 @@
 package Type
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/json"
+)
 
 // Created to abstract over Is_some and Is_ok
 type ValueContainer interface {
@@ -47,4 +50,8 @@ var (
 	_ ValueContainer  = (*Result[any])(nil)
 	_ sql.Scanner     = (*Optional[any])(nil)
 	// _ sql.Scanner     = (*Result[any])(nil)
+	_ json.Marshaler = (*Optional[any])(nil)
+	// _ json.Marshaler   = (*Result[any])(nil)
+	_ json.Unmarshaler = (*Optional[any])(nil)
+	// _ json.Unmarshaler = (*Result[any])(nil)
 )

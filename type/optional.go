@@ -2,6 +2,7 @@ package Type
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"time"
@@ -252,4 +253,27 @@ func (opt *Optional[T]) scanTimeSpecial(src interface{}) Optional[error] {
 ok:
 	opt.present = true
 	return Some[error](nil)
+}
+
+func (opt Optional[T]) MarshalJSON() ([]byte, error) {
+	if !opt.present {
+		// Return null for `omitempty` compatibility
+		return []byte("null"), nil
+		// panic("Tried to marshal an Optional that did not have a value!")
+	}
+	return json.Marshal(opt.value)
+}
+
+func (opt *Optional[T]) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		opt.present = false
+		return nil
+	}
+	var value T
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	opt.value = value
+	opt.present = true
+	return nil
 }
