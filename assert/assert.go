@@ -26,7 +26,7 @@ func file_func_line() (string, string, int) {
 func IsNillable(kind reflect.Kind) bool {
 	switch kind {
 	// based on reflect/type.go -> Kind
-	case reflect.Ptr, reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Slice, reflect.UnsafePointer:
+	case reflect.Pointer, reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Slice, reflect.UnsafePointer:
 		return true
 	default:
 		return false

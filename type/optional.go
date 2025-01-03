@@ -175,7 +175,7 @@ func (opt *Optional[T]) scanBuiltin(src interface{}) Optional[error] {
 			opt.value = newPtr.Interface().(T)
 		}
 	} else {
-		if srcVal.Kind() == reflect.Ptr {
+		if srcVal.Kind() == reflect.Pointer {
 			opt.value = srcVal.Elem().Interface().(T)
 		} else {
 			opt.value = srcVal.Interface().(T)
