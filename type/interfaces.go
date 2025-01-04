@@ -2,6 +2,7 @@ package Type
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 )
 
@@ -50,7 +51,9 @@ var (
 	_ ValueContainer  = (*Result[any])(nil)
 	_ sql.Scanner     = (*Optional[any])(nil)
 	_ sql.Scanner     = (*Result[any])(nil)
-	_ json.Marshaler  = (*Optional[any])(nil)
+	_ driver.Valuer   = (*Optional[any])(nil)
+	// _ driver.Valuer   = (*Result[any])(nil)
+	_ json.Marshaler = (*Optional[any])(nil)
 	// _ json.Marshaler   = (*Result[any])(nil)
 	_ json.Unmarshaler = (*Optional[any])(nil)
 	// _ json.Unmarshaler = (*Result[any])(nil)

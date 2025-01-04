@@ -2,7 +2,9 @@ package Type
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -284,4 +286,35 @@ func (opt *Optional[T]) UnmarshalJSON(data []byte) error {
 	opt.value = value
 	opt.present = true
 	return nil
+}
+
+func (o Optional[T]) Value() (driver.Value, error) {
+	if !o.present {
+		return nil, nil
+	}
+
+	switch v := any(o.Value).(type) {
+
+	case string, bool,
+		int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64, uintptr,
+		float32, float64,
+		complex64, complex128:
+		return v, nil
+
+	case *string, *bool,
+		*int, *int8, *int16, *int32, *int64,
+		*uint, *uint8, *uint16, *uint32, *uint64, *uintptr,
+		*float32, *float64,
+		*complex64, *complex128:
+		return v, nil
+
+	case fmt.Stringer:
+		return v.String(), nil
+	case driver.Valuer:
+		return v.Value()
+
+	default:
+		return nil, errors.New("unsupported type for Optional")
+	}
 }
