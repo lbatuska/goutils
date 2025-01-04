@@ -295,6 +295,9 @@ func (o Optional[T]) Value() (driver.Value, error) {
 
 	switch v := any(o.Value).(type) {
 
+	case driver.Valuer:
+		return v.Value()
+
 	case string, bool,
 		int, int8, int16, int32, int64,
 		uint, uint8, uint16, uint32, uint64, uintptr,
@@ -311,8 +314,6 @@ func (o Optional[T]) Value() (driver.Value, error) {
 
 	case fmt.Stringer:
 		return v.String(), nil
-	case driver.Valuer:
-		return v.Value()
 
 	default:
 		return nil, errors.New("unsupported type for Optional")
