@@ -15,6 +15,21 @@ var (
 	nilResult = (*Result[int])(nil)
 )
 
+func Test_resultScan(t *testing.T) {
+	a := Ok("Not A!")
+	b := Ok(0)
+	c := Ok(0)
+	d := Err[*string](errors.New(""))
+	a.Scan("a")
+	b.Scan(1)
+	c.Scan("c")
+	d.Scan(Ptr("d"))
+	Testing.AssertEqual(t, a.Unwrap(), "a")
+	Testing.AssertEqual(t, b.Unwrap(), 1)
+	Testing.AssertError(t, c.UnwrapErr())
+	Testing.AssertEqual(t, *d.Unwrap(), "d")
+}
+
 func Test_resultConstructors(t *testing.T) {
 	err := errors.New("some error")
 	w := Err[int](err)

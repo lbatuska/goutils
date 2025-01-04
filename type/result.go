@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	Assert "github.com/lbatuska/goutils/assert"
@@ -139,118 +140,155 @@ func (res *Result[T]) Err() Optional[error] {
 }
 
 func (res *Result[T]) Scan(src interface{}) error {
+	Assert.NotNil(res)
+	e := fmt.Errorf("Unsupported type %T or differs from Result[%T], and the type doesn't implement sql.Scanner!",
+		src, res.value)
+	res.err = e
 	// DB had a null value
 	if src == nil {
-		res.err = errors.New("src was nil!")
 		return nil
 	}
+
 	// If T is a scanner
-	if scanner, ok := any(&res.value).(sql.Scanner); ok {
+	if scanner, ok := any(res.value).(sql.Scanner); ok {
 		if err := scanner.Scan(src); err != nil {
-			res.err = err
 			return err
 		}
 		res.err = nil
 		return nil
 	}
-	// We implement parsing for some builtin types
-	mismatchErr := fmt.Errorf("Type of src (%T) doesn't match type of Result[%T]!", src, res.value)
 
-	switch v := any(&res.value).(type) {
+	if scanres := res.scanBuiltin(src); scanres.IsSome() {
+		return scanres.Unwrap()
+	}
 
+	return e
+}
+
+func (res *Result[T]) scanBuiltin(src interface{}) Optional[error] {
+	res.err = nil
+	// First handle the special cases where we allow conversion between types
+	// This is usually just parsing []byte into type
+	if scanres := res.scanTimeSpecial(src); scanres.IsSome() {
+		return scanres
+	}
+	if scanres := res.scanStringSpecial(src); scanres.IsSome() {
+		return scanres
+	}
+
+	srcVal := reflect.ValueOf(src)
+	optType := reflect.TypeOf(res.value)
+
+	optElemType := optType
+	if optElemType.Kind() == reflect.Pointer {
+		optElemType = optElemType.Elem()
+	}
+
+	srcElemType := srcVal.Type()
+	if srcElemType.Kind() == reflect.Pointer {
+		srcElemType = srcElemType.Elem()
+	}
+
+	if srcElemType != optElemType {
+		e := fmt.Errorf("Result[%T] (aka %T) differs from %T!", res.value, res.value, src)
+		res.err = e
+		return Some(e)
+	}
+
+	if optType.Kind() == reflect.Pointer {
+		if srcVal.Kind() == reflect.Pointer {
+			res.value = srcVal.Interface().(T)
+		} else {
+			newPtr := reflect.New(optElemType)
+			newPtr.Elem().Set(srcVal)
+			res.value = newPtr.Interface().(T)
+		}
+	} else {
+		if srcVal.Kind() == reflect.Pointer {
+			res.value = srcVal.Elem().Interface().(T)
+		} else {
+			res.value = srcVal.Interface().(T)
+		}
+	}
+	res.err = nil
+	return Some[error](nil)
+}
+
+func (res *Result[T]) scanStringSpecial(src interface{}) Optional[error] {
+	switch v := any(res.value).(type) {
 	case *string:
-		if str, ok := src.(string); ok {
-			*v = str
-			res.err = nil
-			return nil
-		}
-		if b, ok := src.([]byte); ok {
-			*v = string(b)
-			res.err = nil
-			return nil
-		}
-		res.err = mismatchErr
-		return res.err
-
-	case *int:
-		if s, ok := src.(int); ok {
-			*v = s
-			res.err = nil
-			return nil
-		}
-		res.err = mismatchErr
-		return res.err
-	case *int32:
-		if s, ok := src.(int32); ok {
-			*v = s
-			res.err = nil
-			return nil
-		}
-		res.err = mismatchErr
-		return res.err
-	case *int64:
-		if s, ok := src.(int64); ok {
-			*v = s
-			res.err = nil
-			return nil
-		}
-		res.err = mismatchErr
-		return res.err
-
-	case *bool:
 		switch s := src.(type) {
-		case bool:
-			*v = s
-			res.err = nil
-			return nil
+		case []byte:
+			*v = string(s)
+			goto ok
+		case *[]byte:
+			*v = string(*s)
+			goto ok
 		}
-		res.err = mismatchErr
-		return res.err
-
-	case *float64:
+	case string:
 		switch s := src.(type) {
-		case float64:
-			*v = s
-			res.err = nil
-			return nil
-		case float32:
-			*v = float64(s)
-			res.err = nil
-			return nil
-
+		case []byte:
+			reflect.ValueOf(&res.value).Elem().Set(reflect.ValueOf(string(s)))
+			goto ok
+		case *[]byte:
+			reflect.ValueOf(&res.value).Elem().Set(reflect.ValueOf(string(*s)))
+			goto ok
 		}
-		res.err = mismatchErr
-		return res.err
+	}
+	return None[error]()
+ok:
+	res.err = nil
+	return Some[error](nil)
+}
 
-	case *float32:
-		switch s := src.(type) {
-		case float32:
-			*v = s
-			res.err = nil
-			return nil
-		}
-		res.err = mismatchErr
-		return res.err
-
+func (res *Result[T]) scanTimeSpecial(src interface{}) Optional[error] {
+	switch v := any(res.value).(type) {
 	case *time.Time:
-		if t, ok := src.(time.Time); ok {
-			*v = t
-			res.err = nil
-			return nil
-		}
-		if b, ok := src.([]byte); ok {
-			parsedTime, err := time.Parse(time.RFC3339, string(b)) // or use other formats as necessary
+		switch t := src.(type) {
+		case []byte:
+			parsedTime, err := time.Parse(time.RFC3339, string(t))
 			if err == nil {
 				*v = parsedTime
-				res.err = nil
-				return nil
+				goto ok
+			} else {
+				res.err = err
+				return Some(err)
+			}
+		case *[]byte:
+			parsedTime, err := time.Parse(time.RFC3339, string(*t))
+			if err == nil {
+				*v = parsedTime
+				goto ok
+			} else {
+				res.err = err
+				return Some(err)
 			}
 		}
-		res.err = mismatchErr
-		return res.err
+	case time.Time:
+		switch t := src.(type) {
+		case []byte:
+			parsedTime, err := time.Parse(time.RFC3339, string(t))
+			if err == nil {
+				reflect.ValueOf(&res.value).Elem().Set(reflect.ValueOf(parsedTime))
+				goto ok
+			} else {
+				res.err = err
+				return Some(err)
+			}
+		case *[]byte:
+			parsedTime, err := time.Parse(time.RFC3339, string(*t))
+			if err == nil {
+				reflect.ValueOf(&res.value).Elem().Set(reflect.ValueOf(parsedTime))
+				goto ok
+			} else {
+				res.err = err
+				return Some(err)
+			}
+		}
+
 	}
-	// We couldnt parse the value
-	err := fmt.Errorf("Unsupported type %T, and the type doesn't implement sql.Scanner!", src)
-	res.err = err
-	return err
+	return None[error]()
+ok:
+	res.err = nil
+	return Some[error](nil)
 }
