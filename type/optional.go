@@ -224,12 +224,16 @@ func (opt *Optional[T]) scanTimeSpecial(src interface{}) Optional[error] {
 			if err == nil {
 				*v = parsedTime
 				goto ok
+			} else {
+				return Some(err)
 			}
 		case *[]byte:
 			parsedTime, err := time.Parse(time.RFC3339, string(*t))
 			if err == nil {
 				*v = parsedTime
 				goto ok
+			} else {
+				return Some(err)
 			}
 		}
 	case time.Time:
@@ -239,12 +243,16 @@ func (opt *Optional[T]) scanTimeSpecial(src interface{}) Optional[error] {
 			if err == nil {
 				reflect.ValueOf(&opt.value).Elem().Set(reflect.ValueOf(parsedTime))
 				goto ok
+			} else {
+				return Some(err)
 			}
 		case *[]byte:
 			parsedTime, err := time.Parse(time.RFC3339, string(*t))
 			if err == nil {
 				reflect.ValueOf(&opt.value).Elem().Set(reflect.ValueOf(parsedTime))
 				goto ok
+			} else {
+				return Some(err)
 			}
 		}
 
