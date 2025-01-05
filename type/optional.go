@@ -288,12 +288,12 @@ func (opt *Optional[T]) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (o Optional[T]) Value() (driver.Value, error) {
-	if !o.present {
+func (opt Optional[T]) Value() (driver.Value, error) {
+	if !opt.present {
 		return nil, nil
 	}
 
-	switch v := any(o.Value).(type) {
+	switch v := any(opt.Value).(type) {
 
 	case driver.Valuer:
 		return v.Value()
