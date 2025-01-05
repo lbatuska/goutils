@@ -2,6 +2,8 @@ package Type
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -291,4 +293,62 @@ func (res *Result[T]) scanTimeSpecial(src interface{}) Optional[error] {
 ok:
 	res.err = nil
 	return Some[error](nil)
+}
+
+func (res Result[T]) MarshalJSON() ([]byte, error) {
+	if nil != res.err {
+		// Return null for `omitempty` compatibility
+		return []byte("null"), nil
+		// panic("Tried to marshal a Result that was error!")
+	}
+
+	return json.Marshal(res.value)
+}
+
+func (res *Result[T]) UnmarshalJSON(data []byte) error {
+	var value T
+	res.err = nil
+	if string(data) == "null" {
+		// On null data the best we can do is indicate there was no error and put a default value of T
+		res.value = value
+		return nil
+	}
+	if err := json.Unmarshal(data, &value); err != nil {
+		res.err = err
+		return err
+	}
+	res.value = value
+	return nil
+}
+
+func (res Result[T]) Value() (driver.Value, error) {
+	if nil != res.err {
+		return nil, nil
+	}
+
+	switch v := any(res.Value).(type) {
+
+	case driver.Valuer:
+		return v.Value()
+
+	case string, bool,
+		int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64, uintptr,
+		float32, float64,
+		complex64, complex128:
+		return v, nil
+
+	case *string, *bool,
+		*int, *int8, *int16, *int32, *int64,
+		*uint, *uint8, *uint16, *uint32, *uint64, *uintptr,
+		*float32, *float64,
+		*complex64, *complex128:
+		return v, nil
+
+	case fmt.Stringer:
+		return v.String(), nil
+
+	default:
+		return nil, errors.New("unsupported type for Result")
+	}
 }
