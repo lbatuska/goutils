@@ -50,16 +50,14 @@ func (opt *Optional[T]) HasValue() bool {
 }
 
 // UNWRAPPABLE INTERFACE BEGIN
-func (opt *Optional[T]) Expect(msg string) T {
-	Assert.NotNil(opt)
+func (opt Optional[T]) Expect(msg string) T {
 	if opt.present {
 		return opt.value
 	}
 	panic(msg)
 }
 
-func (opt *Optional[T]) Unwrap() T {
-	Assert.NotNil(opt)
+func (opt Optional[T]) Unwrap() T {
 	if opt.present {
 		return opt.value
 	}

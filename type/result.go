@@ -49,16 +49,14 @@ func (res *Result[T]) HasValue() bool {
 }
 
 // UNWRAPPABLE INTERFACE
-func (res *Result[T]) Expect(msg string) T {
-	Assert.NotNil(res)
+func (res Result[T]) Expect(msg string) T {
 	if res.err == nil {
 		return res.value
 	}
 	panic(msg)
 }
 
-func (res *Result[T]) Unwrap() T {
-	Assert.NotNil(res)
+func (res Result[T]) Unwrap() T {
 	if res.err == nil {
 		return res.value
 	}
