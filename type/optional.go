@@ -298,10 +298,11 @@ func (opt Optional[T]) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	switch v := any(opt.Value).(type) {
+	if valuer, ok := any(opt.value).(driver.Valuer); ok {
+		return valuer.Value()
+	}
 
-	case driver.Valuer:
-		return v.Value()
+	switch v := any(opt.Value).(type) {
 
 	case string, bool,
 		int, int8, int16, int32, int64,

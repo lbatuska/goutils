@@ -331,10 +331,11 @@ func (res Result[T]) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	switch v := any(res.Value).(type) {
+	if valuer, ok := any(res.value).(driver.Valuer); ok {
+		return valuer.Value()
+	}
 
-	case driver.Valuer:
-		return v.Value()
+	switch v := any(res.Value).(type) {
 
 	case string, bool,
 		int, int8, int16, int32, int64,
