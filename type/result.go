@@ -151,8 +151,15 @@ func (res *Result[T]) Scan(src interface{}) error {
 		return nil
 	}
 
-	// If T is a scanner
-	if scanner, ok := any(res.value).(sql.Scanner); ok {
+	// If T is a scanner (Scan is usually implemented on pointers so we need a pointer)
+	var scanner sql.Scanner = nil
+	var ok bool = false
+	if reflect.TypeOf(res.value).Kind() == reflect.Ptr {
+		scanner, ok = any(res.value).(sql.Scanner)
+	} else {
+		scanner, ok = any(&res.value).(sql.Scanner)
+	}
+	if ok {
 		if err := scanner.Scan(src); err != nil {
 			return err
 		}
