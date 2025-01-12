@@ -8,7 +8,7 @@ func (logger *NullLoggerImpl) StopLogger() {}
 
 func (logger *NullLoggerImpl) Write(message string) {}
 
-func (logger *NullLoggerImpl) WriteRequest(message string, request string) {}
+func (logger *NullLoggerImpl) WriteRequest(message string, uuid string) {}
 
 func (logger *NullLoggerImpl) WriteErr(err error) (errnum int) {
 	if err != nil {
@@ -17,7 +17,7 @@ func (logger *NullLoggerImpl) WriteErr(err error) (errnum int) {
 	return errnum
 }
 
-func (logger *NullLoggerImpl) WriteErrRequest(err error, request string) (errnum int) {
+func (logger *NullLoggerImpl) WriteErrRequest(err error, uuid string) (errnum int) {
 	if err != nil {
 		errnum = 1
 	}

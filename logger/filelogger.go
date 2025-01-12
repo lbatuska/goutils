@@ -76,8 +76,8 @@ func (logger *FileLoggerImpl) Write(message string) {
 	logger.messages <- time.Now().Format(time.UnixDate) + " : " + message + "\n"
 }
 
-func (logger *FileLoggerImpl) WriteRequest(message string, request string) {
-	logger.Write(request + " : " + message)
+func (logger *FileLoggerImpl) WriteRequest(message string, uuid string) {
+	logger.Write(uuid + " : " + message)
 }
 
 func (logger *FileLoggerImpl) WriteErr(err error) (errnum int) {
