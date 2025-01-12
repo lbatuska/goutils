@@ -20,3 +20,5 @@ type FileLoggerImpl struct {
 	filepath     string
 	initfilepath string
 }
+
+type SlogLoggerImpl struct{}

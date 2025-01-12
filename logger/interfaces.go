@@ -46,4 +46,5 @@ var (
 	_ Logger = (*NullLoggerImpl)(nil)
 	_ Logger = (*ConsoleLoggerImpl)(nil)
 	_ Logger = (*FileLoggerImpl)(nil)
+	_ Logger = (*SlogLoggerImpl)(nil)
 )
