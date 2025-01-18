@@ -39,11 +39,16 @@ func (logger *SlogLoggerImpl) WriteDebug(message string) {
 }
 
 func (logger *SlogLoggerImpl) WriteRequestDebug(message string, uuid string) {
+	if DEBUG {
+		logger.WriteRequest(message, uuid)
+	}
 }
 
 func (logger *SlogLoggerImpl) WriteErrDebug(err error) (errnum int) {
 	if err != nil {
-		logger.WriteErr(err)
+		if DEBUG {
+			logger.WriteErr(err)
+		}
 		errnum = 1
 	}
 	return errnum
@@ -51,7 +56,9 @@ func (logger *SlogLoggerImpl) WriteErrDebug(err error) (errnum int) {
 
 func (logger *SlogLoggerImpl) WriteErrRequestDebug(err error, uuid string) (errnum int) {
 	if err != nil {
-		logger.WriteErrRequest(err, uuid)
+		if DEBUG {
+			logger.WriteErrRequest(err, uuid)
+		}
 		errnum = 1
 	}
 	return errnum
