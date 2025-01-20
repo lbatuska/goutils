@@ -11,6 +11,10 @@ type ValueContainer interface {
 	HasValue() bool
 }
 
+type Recoverable[T any] interface {
+	CatchUnwrap(T)
+}
+
 type Unwrappable[T any] interface {
 	Expect(string) T         // panics with a provided custom message
 	Unwrap() T               // panics with a generic message
@@ -30,7 +34,8 @@ type Optionaler[T any] interface {
 	IsNone() bool
 	OkOr(error) Result[T]
 	OkOrElse(func() error) Result[T]
-	Unwrappable[T]
+	Optioner[T]
+	OptionalerMarker
 }
 
 type Resulter[T any] interface {
@@ -38,11 +43,24 @@ type Resulter[T any] interface {
 	IsErr() bool
 	Ok() Optional[T]
 	Err() Optional[error]
-	Unwrappable[T]
+	Optioner[T]
+	ResulterMarker
 }
+
+// Marker interfaces to help type matching
+type (
+	ResulterMarker interface {
+		Result()
+	}
+	OptionalerMarker interface {
+		Optional()
+	}
+)
 
 // Ensure compile time the interfaces are implemented
 var (
+	_ OptionalerMarker = (*Optional[any])(nil)
+	_ ResulterMarker   = (*Result[any])(nil)
 	_ Optioner[any]    = (*Optional[any])(nil)
 	_ Optioner[any]    = (*Result[any])(nil)
 	_ Optionaler[any]  = (*Optional[any])(nil)

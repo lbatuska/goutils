@@ -12,6 +12,9 @@ import (
 	Assert "github.com/lbatuska/goutils/assert"
 )
 
+// Marker interface impl
+func (res Result[T]) Result() {}
+
 // CTORS BEGIN
 func Ok[T any](value T) Result[T] {
 	return Result[T]{value: value, err: nil}
@@ -56,11 +59,14 @@ func (res Result[T]) Expect(msg string) T {
 	panic(msg)
 }
 
-func (res Result[T]) Unwrap() T {
+func (res *Result[T]) Unwrap() T {
+	if res == nil {
+		panic("Tried unwrapping a Result that had an error value!")
+	}
 	if res.err == nil {
 		return res.value
 	}
-	panic("Tried unwrapping a Result that had an error value!")
+	panic(res)
 }
 
 func (res *Result[T]) UnwrapOr(val T) T {

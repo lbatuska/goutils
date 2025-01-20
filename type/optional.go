@@ -12,6 +12,9 @@ import (
 	Assert "github.com/lbatuska/goutils/assert"
 )
 
+// Marker interface impl
+func (opt Optional[T]) Optional() {}
+
 // CTORS BEGIN
 func Some[T any](value T) Optional[T] {
 	return Optional[T]{value, true}
@@ -57,11 +60,14 @@ func (opt Optional[T]) Expect(msg string) T {
 	panic(msg)
 }
 
-func (opt Optional[T]) Unwrap() T {
+func (opt *Optional[T]) Unwrap() T {
+	if opt == nil {
+		panic("Tried unwrapping an Optional that did not have a value!")
+	}
 	if opt.present {
 		return opt.value
 	}
-	panic("Tried unwrapping an Optional that did not have a value!")
+	panic(opt)
 }
 
 func (opt *Optional[T]) UnwrapOr(val T) T {
