@@ -32,6 +32,14 @@ func (logger *SlogLoggerImpl) WriteErrRequest(err error, uuid string) (errnum in
 	return errnum
 }
 
+func (logger *SlogLoggerImpl) WriteErrMsgRequest(err error, message string, uuid string) (errnum int) {
+	if err != nil {
+		slog.Error(message+err.Error(), "UUID", uuid)
+		errnum = 1
+	}
+	return errnum
+}
+
 func (logger *SlogLoggerImpl) WriteDebug(message string) {
 	if DEBUG {
 		logger.Write(message)
@@ -58,6 +66,16 @@ func (logger *SlogLoggerImpl) WriteErrRequestDebug(err error, uuid string) (errn
 	if err != nil {
 		if DEBUG {
 			logger.WriteErrRequest(err, uuid)
+		}
+		errnum = 1
+	}
+	return errnum
+}
+
+func (logger *SlogLoggerImpl) WriteErrMsgRequestDebug(err error, message string, uuid string) (errnum int) {
+	if err != nil {
+		if DEBUG {
+			logger.WriteErrMsgRequest(err, message, uuid)
 		}
 		errnum = 1
 	}

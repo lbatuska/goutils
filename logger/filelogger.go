@@ -96,6 +96,14 @@ func (logger *FileLoggerImpl) WriteErrRequest(err error, uuid string) (errnum in
 	return errnum
 }
 
+func (logger *FileLoggerImpl) WriteErrMsgRequest(err error, message string, uuid string) (errnum int) {
+	if err != nil {
+		logger.Write(uuid + " " + message + ": Error: " + err.Error())
+		errnum = 1
+	}
+	return errnum
+}
+
 func (logger *FileLoggerImpl) WriteDebug(message string) {
 	if DEBUG {
 		logger.Write(message)
@@ -119,6 +127,26 @@ func (logger *FileLoggerImpl) WriteErrDebug(err error) (errnum int) {
 func (logger *FileLoggerImpl) WriteErrRequestDebug(err error, uuid string) (errnum int) {
 	if err != nil {
 		logger.WriteDebug(uuid + " : Error: " + err.Error())
+		errnum = 1
+	}
+	return errnum
+}
+
+func (logger *FileLoggerImpl) WriteErrMsgRequestDebug(err error, message string, uuid string) (errnum int) {
+	if err != nil {
+		if DEBUG {
+			logger.WriteErrMsgRequest(err, message, uuid)
+		}
+		errnum = 1
+	}
+	return errnum
+}
+
+func (logger *ConsoleLoggerImpl) WriteErrMsgRequestDebug(err error, message string, uuid string) (errnum int) {
+	if err != nil {
+		if DEBUG {
+			logger.WriteErrMsgRequest(err, message, uuid)
+		}
 		errnum = 1
 	}
 	return errnum

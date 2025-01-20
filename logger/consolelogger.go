@@ -48,6 +48,14 @@ func (logger *ConsoleLoggerImpl) WriteErrRequest(err error, uuid string) (errnum
 	return errnum
 }
 
+func (logger *ConsoleLoggerImpl) WriteErrMsgRequest(err error, message string, uuid string) (errnum int) {
+	if err != nil {
+		logger.Write(uuid + " " + message + ": Error: " + err.Error())
+		errnum = 1
+	}
+	return errnum
+}
+
 func (logger *ConsoleLoggerImpl) WriteDebug(message string) {
 	if DEBUG {
 		logger.Write(message)

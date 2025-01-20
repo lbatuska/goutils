@@ -26,6 +26,8 @@ type (
 		// If an error that is not nill passed in it logs the error and returns 1, otherwise 0
 		WriteErr(error) int
 		WriteErrRequest(err error, uuid string) int
+
+		WriteErrMsgRequest(err error, message string, uuid string) int
 	}
 	// Use _DEBUG prints to strip them out of release builds
 	DebugLogger interface {
@@ -38,6 +40,8 @@ type (
 		WriteRequestDebug(message string, uuid string)
 		WriteErrDebug(err error) (errnum int)
 		WriteErrRequestDebug(err error, uuid string) int
+
+		WriteErrMsgRequestDebug(err error, message string, uuid string) int
 	}
 )
 
