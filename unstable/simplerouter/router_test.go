@@ -192,11 +192,23 @@ func Test_globalMiddlewares(t *testing.T) {
 		})
 	}
 	simpleRouter := SimpleRouter()
+	simpleRouter2 := simpleRouter.SubPath("2")
+
 	simpleRouter.PushGlobalMiddleware(gmw1)
 	simpleRouter.PushGlobalMiddleware(gmw2)
 	simpleRouter.PushMiddleware(mw1, mw2)
 	simpleRouter.GET("test", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 	simpleRouter.GET("test2", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+
+	// Subpath
+	simpleRouter2.GET("test", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	_ts := httptest.NewServer(simpleRouter2)
+	_req, _ := http.NewRequest("GET", _ts.URL+"/2/test", nil)
+	_, _err := http.DefaultClient.Do(_req)
+	Testing.AssertNotError(t, _err)
+	Testing.AssertEqual(t, 12, counter)
+	counter = 0
+	// Subpath
 
 	ts := httptest.NewServer(simpleRouter)
 	req, _ := http.NewRequest("GET", ts.URL+"/test", nil)

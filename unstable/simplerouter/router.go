@@ -66,9 +66,9 @@ func (rg *RouteGroup) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		rg.mux.ServeHTTP(w, r)
 	})
 
-	mwlen := len(rg.global_middlewares) - 1
-	for i := range rg.global_middlewares {
-		handler = rg.global_middlewares[mwlen-i](handler)
+	mwlen := len(*rg.global_middlewares) - 1
+	for i := range *rg.global_middlewares {
+		handler = (*rg.global_middlewares)[mwlen-i](handler)
 	}
 
 	handler.ServeHTTP(w, r)
@@ -81,7 +81,7 @@ func (rg *RouteGroup) Handler(r *http.Request) (h http.Handler, pattern string) 
 
 // Creates a new SimpleRouter with the basePath of "/"
 func SimpleRouter() *RouteGroup {
-	return &RouteGroup{mux: http.NewServeMux(), basePath: "/"}
+	return &RouteGroup{mux: http.NewServeMux(), basePath: "/", global_middlewares: &[]Middleware{}}
 }
 
 // Puts middlewares on top of existing ones in order
@@ -105,20 +105,21 @@ func (rg *RouteGroup) PopMiddleware() Middleware {
 	return lastMiddleware
 }
 
+// this vs PushMiddleware ? what's the diff?
 func (rg *RouteGroup) PushGlobalMiddleware(first Middleware, others ...Middleware) *RouteGroup {
-	rg.global_middlewares = append(rg.global_middlewares, first)
-	rg.global_middlewares = append(rg.global_middlewares, others...)
+	*rg.global_middlewares = append(*rg.global_middlewares, first)
+	*rg.global_middlewares = append(*rg.global_middlewares, others...)
 	return rg
 }
 
 func (rg *RouteGroup) PopGlobalMiddleware() Middleware {
-	if len(rg.global_middlewares) == 0 {
+	if len(*rg.global_middlewares) == 0 {
 		return nil
 	}
 
-	lastIndex := len(rg.global_middlewares) - 1
-	lastMiddleware := rg.global_middlewares[lastIndex]
-	rg.global_middlewares = rg.global_middlewares[:lastIndex]
+	lastIndex := len(*rg.global_middlewares) - 1
+	lastMiddleware := (*rg.global_middlewares)[lastIndex]
+	*rg.global_middlewares = (*rg.global_middlewares)[:lastIndex]
 
 	return lastMiddleware
 }
@@ -146,8 +147,9 @@ func (rg *RouteGroup) registerRoute(method string, path string, handler http.Han
 
 func (rg *RouteGroup) SubPath(path string) *RouteGroup {
 	rgc := &RouteGroup{
-		mux:      rg.mux,
-		basePath: rg.basePath + path + "/",
+		mux:                rg.mux,
+		basePath:           rg.basePath + path + "/",
+		global_middlewares: rg.global_middlewares,
 	}
 	middlewares := make([]Middleware, len(rg.middlewares))
 	copy(middlewares, rg.middlewares)
