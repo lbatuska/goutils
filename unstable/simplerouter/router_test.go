@@ -9,6 +9,7 @@ import (
 	"time"
 
 	Testing "github.com/lbatuska/goutils/testing"
+	Type "github.com/lbatuska/goutils/type"
 )
 
 func setupServer(wg *sync.WaitGroup) {
@@ -23,7 +24,7 @@ func setupServer(wg *sync.WaitGroup) {
 		w.WriteHeader(200)
 	}))
 
-	simpleRouter.StartWithGracefulShutdown("0.0.0.0:8080")
+	simpleRouter.StartWithGracefulShutdown("0.0.0.0:8080", Type.None[ServerConfig]())
 }
 
 func sendKillSignal(wg *sync.WaitGroup) {

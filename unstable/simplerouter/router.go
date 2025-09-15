@@ -8,12 +8,26 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	Type "github.com/lbatuska/goutils/type"
 )
 
-func (rg *RouteGroup) StartServer(addr string) *http.Server {
-	server := &http.Server{
-		Addr:    addr,
-		Handler: rg,
+func (rg *RouteGroup) StartServer(addr string, config Type.Optional[ServerConfig]) *http.Server {
+	var server *http.Server
+	if config.HasValue() {
+		serverConfig := config.Unwrap()
+		server = &http.Server{
+			Addr:              addr,
+			Handler:           rg,
+			ReadTimeout:       serverConfig.ReadTimeout,
+			ReadHeaderTimeout: serverConfig.ReadHeaderTimeout,
+			WriteTimeout:      serverConfig.WriteTimeout,
+		}
+	} else {
+		server = &http.Server{
+			Addr:    addr,
+			Handler: rg,
+		}
 	}
 
 	go func() {
@@ -25,10 +39,22 @@ func (rg *RouteGroup) StartServer(addr string) *http.Server {
 	return server
 }
 
-func (rg *RouteGroup) StartWithGracefulShutdown(addr string) {
-	server := &http.Server{
-		Addr:    addr,
-		Handler: rg, // This will use your RouteGroup (with ServeMux) as the handler
+func (rg *RouteGroup) StartWithGracefulShutdown(addr string, config Type.Optional[ServerConfig]) {
+	var server *http.Server
+	if config.HasValue() {
+		serverConfig := config.Unwrap()
+		server = &http.Server{
+			Addr:              addr,
+			Handler:           rg,
+			ReadTimeout:       serverConfig.ReadTimeout,
+			ReadHeaderTimeout: serverConfig.ReadHeaderTimeout,
+			WriteTimeout:      serverConfig.WriteTimeout,
+		}
+	} else {
+		server = &http.Server{
+			Addr:    addr,
+			Handler: rg,
+		}
 	}
 
 	// Start the server in a separate goroutine

@@ -1,6 +1,9 @@
 package SimpleRouter
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+)
 
 type Middleware func(http.Handler) http.Handler
 
@@ -9,4 +12,10 @@ type RouteGroup struct {
 	basePath           string         // The current path we are defining handlers on / appending to
 	middlewares        []Middleware   // Stack of middlewares that will be applied on a handler in order
 	global_middlewares *[]Middleware
+}
+
+type ServerConfig struct {
+	ReadTimeout       time.Duration
+	ReadHeaderTimeout time.Duration
+	WriteTimeout      time.Duration
 }
